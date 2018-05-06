@@ -1,0 +1,26 @@
+@import '~antd/dist/antd.css';
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+
+
+.groupClass {
+  padding-right: 15px; 
+  padding-left: 25px;
+}
+
+.allGroupsClass{
+  padding-bottom: 40px;
+}
+.secondRowClass{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flexibleRow{
+  display: flex;
+  flex-wrap: wrap;
+}

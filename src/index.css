@@ -24,3 +24,15 @@ body {
   display: flex;
   flex-wrap: wrap;
 }
+
+.firstCollumnPositioning{
+  display:flex;
+  justify-content: flex-end;
+  flex-direction: column;
+}
+
+.firstCollumnFiltersPositioning{
+  display:block;
+  width: 60%;
+  margin: auto;
+}

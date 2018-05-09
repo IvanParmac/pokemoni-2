@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import axios from 'axios'
-import { Row, Col, Radio, Checkbox, Select, Card, Button, Spin } from 'antd'
-const { Group } = Radio;
-const { Option } = Select;
+import { Row, Col, Card, Spin } from 'antd'
+import Filters from './Filters'
+import Groups from './Groups'
 
 export default class extends Component {
   static displayName = 'App'
@@ -10,12 +10,14 @@ export default class extends Component {
   state = {
     pokemons: [],
     typeClass: [],
-    currentHeightClass: 0,
-    currentTypeClass: '',
-    currentWeightClass: {
-      firstCheckbox: false,
-      secondCheckbox: false,
-      thirdCheckbox: false
+    filters: {
+      currentHeightClass: 0,
+      currentTypeClass: '',
+      currentWeightClass: {
+        firstCheckbox: false,
+        secondCheckbox: false,
+        thirdCheckbox: false
+      }
     },
     currentGroupClass: 0,
   }
@@ -41,71 +43,65 @@ export default class extends Component {
   }
 
   renderPokemons = () => {
-    const { pokemons } = this.state;
+    const { pokemons, filters: { currentTypeClass, currentHeightClass, currentWeightClass } } = this.state;
     let newPokemons = pokemons
 
-    if (this.state.currentTypeClass)
-      newPokemons = newPokemons.filter(pokemon => (pokemon.data.types.findIndex(type => type.type.name === this.state.currentTypeClass)) !== -1)
+    if (currentTypeClass)
+      newPokemons = newPokemons.filter(pokemon => (pokemon.data.types.findIndex(type => type.type.name === currentTypeClass)) !== -1)
 
-    if (this.state.currentHeightClass === 1) {
+    if (currentHeightClass === 1) {
       newPokemons = newPokemons.filter((pokemon, index) =>
         parseInt(pokemon.data.height, 10) < 10)
     }
 
-    if (this.state.currentHeightClass === 2) {
+    if (currentHeightClass === 2) {
       newPokemons = newPokemons.filter((pokemon, index) =>
         parseInt(pokemon.data.height, 10) >= 10 && parseInt(pokemon.data.height, 10) <= 15)
     }
 
-    if (this.state.currentHeightClass === 3) {
+    if (currentHeightClass === 3) {
       newPokemons = newPokemons.filter((pokemon, index) =>
         parseInt(pokemon.data.height, 10) > 15)
     }
 
 
-    if (
-      this.state.currentWeightClass.firstCheckbox === true &&
-      this.state.currentWeightClass.secondCheckbox === false &&
-      this.state.currentWeightClass.thirdCheckbox === false) {
+    if (currentWeightClass.firstCheckbox === true &&
+      currentWeightClass.secondCheckbox === false &&
+      currentWeightClass.thirdCheckbox === false) {
       newPokemons = newPokemons.filter((pokemon, index) =>
         parseInt(pokemon.data.weight, 10) < 100)
     }
 
-    if (
-      this.state.currentWeightClass.firstCheckbox === false &&
-      this.state.currentWeightClass.secondCheckbox === true &&
-      this.state.currentWeightClass.thirdCheckbox === false) {
+    if (currentWeightClass.firstCheckbox === false &&
+      currentWeightClass.secondCheckbox === true &&
+      currentWeightClass.thirdCheckbox === false) {
       newPokemons = newPokemons.filter((pokemon, index) =>
         parseInt(pokemon.data.weight, 10) >= 100 && parseInt(pokemon.data.weight, 10) <= 200)
     }
 
-    if (
-      this.state.currentWeightClass.firstCheckbox === false &&
-      this.state.currentWeightClass.secondCheckbox === false &&
-      this.state.currentWeightClass.thirdCheckbox === true) {
+    if (currentWeightClass.firstCheckbox === false &&
+      currentWeightClass.secondCheckbox === false &&
+      currentWeightClass.thirdCheckbox === true) {
       newPokemons = newPokemons.filter((pokemon, index) => parseInt(pokemon.data.weight, 10) > 200)
     }
 
-    if (
-      this.state.currentWeightClass.firstCheckbox === true &&
-      this.state.currentWeightClass.secondCheckbox === true &&
-      this.state.currentWeightClass.thirdCheckbox === false) {
+    if (currentWeightClass.firstCheckbox === true &&
+      currentWeightClass.secondCheckbox === true &&
+      currentWeightClass.thirdCheckbox === false) {
       newPokemons = newPokemons.filter((pokemon, index) => parseInt(pokemon.data.weight, 10) <= 200)
     }
 
-    if (
-      this.state.currentWeightClass.firstCheckbox === true &&
-      this.state.currentWeightClass.secondCheckbox === false &&
-      this.state.currentWeightClass.thirdCheckbox === true) {
+    if (currentWeightClass.firstCheckbox === true &&
+      currentWeightClass.secondCheckbox === false &&
+      currentWeightClass.thirdCheckbox === true) {
       newPokemons = newPokemons.filter((pokemon, index) =>
         parseInt(pokemon.data.weight, 10) < 100 ||
         parseInt(pokemon.data.weight, 10) > 200)
     }
 
-    if (
-      this.state.currentWeightClass.firstCheckbox === false &&
-      this.state.currentWeightClass.secondCheckbox === true &&
-      this.state.currentWeightClass.thirdCheckbox === true) {
+    if (currentWeightClass.firstCheckbox === false &&
+      currentWeightClass.secondCheckbox === true &&
+      currentWeightClass.thirdCheckbox === true) {
       newPokemons = newPokemons.filter((pokemon, index) => parseInt(pokemon.data.weight, 10) >= 100)
     }
 
@@ -126,65 +122,75 @@ export default class extends Component {
     )
 
 
-  onRadioChange = (e) => this.setState({ currentHeightClass: e.target.value })
-
-  onFirstCheckboxChange = (e) =>
+  onRadioChange = (e) =>
     this.setState({
-      currentWeightClass: {
-        ...this.state.currentWeightClass,
-        firstCheckbox: e.target.checked,
+      filters: {
+        ...this.state.filters,
+        currentHeightClass: e.target.value
       }
     })
 
-
-  onSecondCheckboxChange = (e) =>
+  onCheckboxChange = (e) =>
     this.setState({
-      currentWeightClass: {
-        ...this.state.currentWeightClass,
-        secondCheckbox: e.target.checked,
+      filters: {
+        ...this.state.filters,
+        currentWeightClass: {
+          ...this.state.filters.currentWeightClass,
+          [e.target.name]: e.target.checked,
+        }
       }
     })
-
-  onThirdCheckboxChange = (e) =>
+  
+  onTypeChange = (value) =>
     this.setState({
-      currentWeightClass: {
-        ...this.state.currentWeightClass,
-        thirdCheckbox: e.target.checked,
+      filters: {
+        ...this.state.filters,
+        currentTypeClass: value
       }
     })
-
-  onTypeChange = (value) => this.setState({ currentTypeClass: value })
 
   groupSelect = (e) => {
     if (e.target.name === 'first') {
       this.setState({
-        currentHeightClass: 1,
-        currentWeightClass: { firstCheckbox: true, secondCheckbox: false, thirdCheckbox: false },
-        currentTypeClass: 'bug'
+        filters: {
+          ...this.state.filters,
+          currentHeightClass: 1,
+          currentWeightClass: { firstCheckbox: true, secondCheckbox: false, thirdCheckbox: false },
+          currentTypeClass: 'bug'
+        }
       })
     }
 
     if (e.target.name === 'second') {
       this.setState({
-        currentHeightClass: 2,
-        currentWeightClass: { firstCheckbox: false, secondCheckbox: true, thirdCheckbox: false },
-        currentTypeClass: 'poison'
+        filters: {
+          ...this.state.filters,
+          currentHeightClass: 2,
+          currentWeightClass: { firstCheckbox: false, secondCheckbox: true, thirdCheckbox: false },
+          currentTypeClass: 'poison'
+        }
       })
     }
 
     if (e.target.name === 'third') {
       this.setState({
-        currentHeightClass: 3,
-        currentWeightClass: { firstCheckbox: false, secondCheckbox: false, thirdCheckbox: true, },
-        currentTypeClass: ''
+        filters: {
+          ...this.state.filters,
+          currentHeightClass: 3,
+          currentWeightClass: { firstCheckbox: false, secondCheckbox: false, thirdCheckbox: true, },
+          currentTypeClass: ''
+        }
       })
     }
 
     if (e.target.name === 'fourth') {
       this.setState({
-        currentHeightClass: 0,
-        currentWeightClass: { firstCheckbox: false, secondCheckbox: false, thirdCheckbox: true, },
-        currentTypeClass: 'flying'
+        filters: {
+          ...this.state.filters,
+          currentHeightClass: 0,
+          currentWeightClass: { firstCheckbox: false, secondCheckbox: false, thirdCheckbox: true, },
+          currentTypeClass: 'flying'
+        }
       })
     }
   }
@@ -197,37 +203,23 @@ export default class extends Component {
     return (
       <div>
         <Row className="allGroupsClass">
-          <Col xs={{ span: 24, offset: 0 }} sm={{ span: 24, offset: 6 }}>
-            <span className="groupClass"><Button type="primary" shape="circle" size="large" name="first" onClick={this.groupSelect}> 1</Button> </span>
-            <span className="groupClass"><Button type="primary" shape="circle" size="large" name="second" onClick={this.groupSelect}>2 </Button></span>
-            <span className="groupClass"><Button type="primary" shape="circle" size="large" name="third" onClick={this.groupSelect}>3 </Button></span>
-            <span className="groupClass"><Button type="primary" shape="circle" size="large" name="fourth" onClick={this.groupSelect}>4 </Button></span>
+          <Col xs={{ span: 24, offset: 0 }} sm={{ span: 18, offset: 6 }}>
+            <Groups
+              groupSelect={this.groupSelect}
+            />
           </Col>
         </Row>
         <Row className="secondRowClass">
-          <Col md={6} xs={24} >
-            <div>
-              <h3>Height</h3>
-              <Group onChange={this.onRadioChange} value={this.state.currentHeightClass}>
-                <Radio style={{ display: "block" }} value={1}> &lt; 10</Radio>
-                <Radio style={{ display: "block" }} value={2}>&gt;= 10 &amp; &lt;= 15</Radio>
-                <Radio style={{ display: "block" }} value={3}>&gt;= 15</Radio>
-              </Group>
-            </div>
-            <div>
-              <h3>Weight</h3>
-              <Checkbox style={{ display: "block" }} checked={this.state.currentWeightClass.firstCheckbox} onChange={this.onFirstCheckboxChange}>&lt; 100</Checkbox>
-              <Checkbox style={{ display: "block" }} checked={this.state.currentWeightClass.secondCheckbox} onChange={this.onSecondCheckboxChange}>&gt;= 100 &amp; &lt;= 200</Checkbox>
-              <Checkbox style={{ display: "block" }} checked={this.state.currentWeightClass.thirdCheckbox} onChange={this.onThirdCheckboxChange}>&gt;= 15</Checkbox>
-            </div>
-            <div>
-              <h3>Type</h3>
-              <Select placeholder="Select type" style={{ width: 120 }} onChange={this.onTypeChange} value={this.state.currentTypeClass}>
-                {this.state.typeClass.map((type, index) => <Option value={type} key={index}>{type}</Option>)}
-              </Select>
-            </div>
+          <Col sm={6} xs={24} >
+            <Filters
+              onRadioChange={this.onRadioChange}
+              onCheckboxChange={this.onCheckboxChange}
+              onTypeChange={this.onTypeChange}
+              typeClass={this.state.typeClass}
+              filters={this.state.filters}
+            />
           </Col>
-          <Col md={18} xs={24}>
+          <Col sm={18} xs={24}>
             {this.renderPokemons()}
           </Col>
         </Row>

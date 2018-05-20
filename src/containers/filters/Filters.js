@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Radio, Checkbox, Select } from 'antd'
+import { Radio, Checkbox, Select } from 'antd';
 const { Group } = Radio;
 const { Option } = Select;
 
@@ -15,10 +15,8 @@ export default class extends Component {
       }),
       currentTypeClass: PropTypes.string,
     }),
-    onRadioChange: PropTypes.func,
-    onCheckboxChange:PropTypes.func,
-    onTypeChange:PropTypes.func,
-    typeClass:PropTypes.arrayOf(
+    handleChange: PropTypes.func,
+    typeClass: PropTypes.arrayOf(
       PropTypes.string
     )
   }
@@ -26,9 +24,7 @@ export default class extends Component {
   render() {
     const {
       typeClass,
-      onRadioChange,
-      onCheckboxChange,
-      onTypeChange,
+      handleFilterChange,
       filters: {
         currentHeightClass,
         currentWeightClass,
@@ -40,7 +36,11 @@ export default class extends Component {
       <div className="firstCollumnPositioning">
         <div className="firstCollumnFiltersPositioning">
           <h3>Height</h3>
-          <Group onChange={onRadioChange} value={currentHeightClass}>
+          <Group
+            onChange={(e) => handleFilterChange(e.target.name, e.target.value)}
+            name="currentHeightClass"
+            value={currentHeightClass}
+          >
             <Radio style={{ display: "block" }} value={1}> &lt; 10</Radio>
             <Radio style={{ display: "block" }} value={2}>&gt;= 10 &amp; &lt;= 15</Radio>
             <Radio style={{ display: "block" }} value={3}>&gt;= 15</Radio>
@@ -52,7 +52,7 @@ export default class extends Component {
             name="firstCheckbox"
             style={{ display: "block" }}
             checked={currentWeightClass.firstCheckbox}
-            onChange={onCheckboxChange}
+            onChange={(e) => handleFilterChange(e.target.name, e.target.checked, "checkbox")}
           >
             &lt; 100
           </Checkbox>
@@ -60,7 +60,7 @@ export default class extends Component {
             name="secondCheckbox"
             style={{ display: "block" }}
             checked={currentWeightClass.secondCheckbox}
-            onChange={onCheckboxChange}
+            onChange={(e) => handleFilterChange(e.target.name, e.target.checked, "checkbox")}
           >
             &gt;= 100 &amp; &lt;= 200
           </Checkbox>
@@ -68,14 +68,19 @@ export default class extends Component {
             name="thirdCheckbox"
             style={{ display: "block" }}
             checked={currentWeightClass.thirdCheckbox}
-            onChange={onCheckboxChange}
+            onChange={(e) => handleFilterChange(e.target.name, e.target.checked, "checkbox")}
           >
             &gt; 200
           </Checkbox>
         </div>
         <div className="firstCollumnFiltersPositioning">
           <h3>Type</h3>
-          <Select placeholder="Select type" style={{ width: 120 }} onChange={onTypeChange} value={currentTypeClass}>
+          <Select
+            placeholder="Select type"
+            style={{ width: 120 }}
+            onChange={(value) => handleFilterChange("currentTypeClass", value)}
+            value={currentTypeClass}
+          >
             {typeClass.map((type, index) => <Option value={type} key={index}>{type}</Option>)}
           </Select>
         </div>
